@@ -1,19 +1,13 @@
+import { useAuthStore } from '@/store/auth';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    const newPost = await prisma.post.create({
-      data: {
-        title: 'Hello World',
-        content: 'This is my first post',
-        published: true,
-        // random authorId from prisma.auth
-      },
-    });
-
-    console.log('newPost', newPost);
+    // check if authenticated using useAuthStore
+    const authStore = useAuthStore();
+    if (!authStore.isAuth) throw new Error('Not Logged In');
 
     const posts = await prisma.post.findMany();
 
