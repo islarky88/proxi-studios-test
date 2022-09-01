@@ -10,4 +10,7 @@ export default defineNuxtConfig({
       postcssOptions: require('./postcss.config.js'),
     },
   },
+  publicRuntimeConfig: {
+    secret: process.env.SECRET,
+  },
 });
