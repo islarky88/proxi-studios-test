@@ -1,30 +1,50 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    const secret = useRuntimeConfig().env?.public?.secret;
+    const secret = useRuntimeConfig().env?.public?.secret || 'randomsecret';
     const { username, password } = await useBody(event);
 
     if (!username || !password)
       throw new Error('username or password is missing');
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // check and find user
+    const user = await prisma.user.findFirst({
+      where: {
+        username,
+      },
+    });
 
-    let token;
+    if (!user) throw new Error('user does not exist');
 
-    // try {
-    //    token = jwt.sign(
-    //      { userId: newUser.id, email: newUser.email },
-    //      'secretkeyappearshere',
-    //      { expiresIn: '1h' },
-    //    );
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    console.log('user :>> ', user);
+
+    // check password
+    const hashedPassword = await bcrypt.hash(password, user.salt);
+
+    // user.password =     const hashedPassword = await bcrypt.hash(password, salt);
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    console.log('isPasswordValid :>> ', isPasswordValid);
+
+    if (!isPasswordValid) throw new Error('invalid password');
+
+    // create token
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      secret,
+      { expiresIn: '1h' },
+    );
+    console.log('token :>> ', token);
 
     return {
       message: 'login success',
+      token,
     };
   } catch (error) {
     return {

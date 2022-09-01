@@ -29,6 +29,16 @@
       </a-form-item>
 
 
+      <div v-if="isSignup" class="flex justify-center mt-3">
+        Already registered? <nuxt-link to="/login" class="ml-3">Login here</nuxt-link>
+      </div>
+
+      <div v-if="!isSignup" class="flex justify-center mt-3">
+        Are you new? <nuxt-link to="/login?action=signup" class="ml-3">Signup here</nuxt-link>
+      </div>
+
+
+
     </a-form>
 
   </div>
