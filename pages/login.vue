@@ -108,7 +108,7 @@ const onFinish = async () => {
 
     // register or login successful
     notification['success']({
-      message: 'Successfully logged in',
+      message: `Successfully ${isSignup.value ? 'registered' : 'logged in'}`,
       description: 'You will be redirected to the dashboard in 3 seconds.',
     });
   } catch (error) {

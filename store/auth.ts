@@ -19,9 +19,14 @@ export const useAuthStore = defineStore({
     //   const { userId, username } = jwt.decode(token);
     //   this.user = { id: userId, token: token, username };
     // },
+    logout() {
+      localStorage.removeItem('token');
+      this.user = null;
+      this.token = null;
+    },
   },
   getters: {
-    isAuth: (state) => state.user?.token && state.user?.id,
+    isAuth: (state) => state.token,
     test: (state) => 'test getter',
   },
 });
