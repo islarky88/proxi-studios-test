@@ -208,11 +208,7 @@
                   class="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   <span class="sr-only">Open user menu</span>
-                  <img
-                    class="h-8 w-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                    alt=""
-                  />
+                  <img class="h-8 w-8 rounded-full" :src="profilePic" alt="" />
                 </MenuButton>
               </div>
               <transition
@@ -226,19 +222,33 @@
                 <MenuItems
                   class="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
                 >
-                  <MenuItem
-                    v-for="item in userNavigation"
-                    :key="item.name"
-                    v-slot="{ active }"
-                  >
-                    <a
-                      :href="item.href"
-                      :class="[
-                        active ? 'bg-gray-100' : '',
-                        'block px-4 py-2 text-sm text-gray-700',
-                      ]"
-                      >{{ item.name }}</a
+                  <template v-if="isAuth">
+                    <MenuItem
+                      v-for="item in userNavigation"
+                      :key="item.name"
+                      v-slot="{ active }"
                     >
+                      <a
+                        :disabled="false"
+                        :href="item.href"
+                        :class="[
+                          active ? 'bg-gray-100' : '',
+                          'block px-4 py-2 text-sm text-gray-700',
+                        ]"
+                        >{{ item.name }}</a
+                      >
+                    </MenuItem>
+                  </template>
+
+                  <MenuItem v-if="!isAuth">
+                    <a @click="goToLogin()" class="block px-4 py-2 text-sm">
+                      Login
+                    </a>
+                  </MenuItem>
+                  <MenuItem v-else>
+                    <a @click="logout()" class="block px-4 py-2 text-sm">
+                      Logout
+                    </a>
                   </MenuItem>
                 </MenuItems>
               </transition>
@@ -250,7 +260,9 @@
       <main class="flex-1">
         <div class="py-6">
           <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-            <h1 class="text-2xl font-semibold text-gray-900">{{ pageName }}</h1>
+            <h1 class="text-2xl font-semibold text-gray-900 capitalize">
+              {{ pageName }}
+            </h1>
           </div>
           <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
             <!-- Replace with your content -->
@@ -294,6 +306,7 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid/index.js';
 const authStore = useAuthStore();
 
 const route = useRoute();
+const router = useRouter();
 
 const pageName = computed(() => {
   const name = route.name;
@@ -304,6 +317,12 @@ const pageName = computed(() => {
 });
 
 const isAuth = computed(() => authStore.isAuth);
+const profilePic = computed(() => {
+  if (authStore.isAuth) {
+    return 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80';
+  }
+  return 'https://www.shareicon.net/data/256x256/2017/05/09/885769_user_512x512.png';
+});
 
 const navigation = [
   {
@@ -350,10 +369,18 @@ const navigation = [
   },
 ];
 const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
+  { name: 'Your Profile', href: '/profile' },
+  { name: 'Settings', href: '/settings' },
 ];
+
+const goToLogin = () => {
+  router.push({ name: 'login' });
+};
+
+const logout = async () => {
+  await useAuthStore.logout();
+  router.push({ name: 'login' });
+};
 
 const sidebarOpen = ref(false);
 </script>
