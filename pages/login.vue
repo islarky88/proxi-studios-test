@@ -100,11 +100,8 @@ const onFinish = async () => {
     localStorage.setItem('token', result.token);
     authStore.token = result.token;
 
-    // redirect to dashboard timeout
-    // setTimeout(() => {
-    //   const router = useRouter();
-    //   router.push({ path: '/dashboard' });
-    // }, 3000);
+    const router = useRouter();
+    router.push({ path: '/dashboard' });
 
     // register or login successful
     notification['success']({
