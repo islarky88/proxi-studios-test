@@ -1,51 +1,73 @@
 <template>
-  <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
-
-    token: {{ token }}
-
-    <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 8 }" autocomplete="off"
-      @finish="onFinish" @finishFailed="onFinishFailed">
-      <a-form-item label="Username" name="username"
-        :rules="[{ required: true, message: 'Please input your username!' }]">
+  <div
+    class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12"
+  >
+    <a-form
+      :model="formState"
+      name="basic"
+      :label-col="{ span: 8 }"
+      :wrapper-col="{ span: 8 }"
+      autocomplete="off"
+      @finish="onFinish"
+      @finishFailed="onFinishFailed"
+    >
+      <a-form-item
+        label="Username"
+        name="username"
+        :rules="[{ required: true, message: 'Please input your username!' }]"
+      >
         <a-input v-model:value="formState.username" />
       </a-form-item>
 
-      <a-form-item label="Password" name="password"
-        :rules="[{ required: true, message: 'Please input your password!' }]">
+      <a-form-item
+        label="Password"
+        name="password"
+        :rules="[{ required: true, message: 'Please input your password!' }]"
+      >
         <a-input-password v-model:value="formState.password" />
       </a-form-item>
 
       <a-form-item name="remember" :wrapper-col="{ offset: 8, span: 16 }">
-        <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
+        <a-checkbox v-model:checked="formState.remember"
+          >Remember me</a-checkbox
+        >
       </a-form-item>
 
       <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button class="bg-slate-800 text-black" type="primary" html-type="submit">{{ isSignup ? 'Signup' : 'Login' }}
+        <a-button
+          :disabled="isLoading"
+          class="bg-slate-800 text-black"
+          type="primary"
+          html-type="submit"
+        >
+          {{ isSignup ? 'Signup' : 'Login' }}
         </a-button>
       </a-form-item>
 
-
       <div v-if="isSignup" class="flex justify-center mt-3">
-        Already registered? <nuxt-link to="/login" class="ml-3">Login here</nuxt-link>
+        Already registered?
+        <nuxt-link to="/login" class="ml-3">Login here</nuxt-link>
       </div>
 
       <div v-if="!isSignup" class="flex justify-center mt-3">
-        Are you new? <nuxt-link to="/login?action=signup" class="ml-3">Signup here</nuxt-link>
+        Are you new?
+        <nuxt-link to="/login?action=signup" class="ml-3"
+          >Signup here</nuxt-link
+        >
       </div>
-
     </a-form>
   </div>
 </template>
 
 <script setup lang="ts">
 import { notification } from 'ant-design-vue';
-import { useAuthStore } from '@/store/auth'
+import { useAuthStore } from '@/store/auth';
 
-const route = useRoute()
-const authStore = useAuthStore()
+const route = useRoute();
+const authStore = useAuthStore();
 
-const isSignup = computed(() => route.query?.action === 'signup')
-const token = computed(() => authStore.token)
+const isSignup = computed(() => route.query?.action === 'signup');
+const isLoading = ref(false);
 
 interface FormState {
   username: string;
@@ -65,48 +87,37 @@ const onFinish = async () => {
       password: formState.password,
     };
 
+    isLoading.value = true;
     const endpoint = isSignup.value ? '/api/auth/signup' : '/api/auth/login';
     const result = await $fetch(endpoint, { method: 'post', body: payload });
-    console.log('result :>> ', result);
 
     // check for errors and stop when any is found
-    if (result.error) {
-      notification['error']({
-        message: 'Password is incorrect',
-        description:
-          `Please check your password and try again. Server Message: ${result.error}`,
-      });
-      return;
-    }
+    if (result.error) throw new Error(result.error);
+
+    if (!result.token) throw new Error("Token doesn't exist");
+
+    // save token to local storage and pinia store
+    localStorage.setItem('token', result.token);
+    authStore.token = result.token;
+
+    // redirect to dashboard timeout
+    setTimeout(() => {
+      const router = useRouter();
+      router.push({ path: '/user' });
+    }, 3000);
 
     // register or login successful
     notification['success']({
       message: 'Successfully logged in',
-      description:
-        'You will be redirected to the dashboard in 3 seconds.',
+      description: 'You will be redirected to the dashboard in 3 seconds.',
     });
-
-    if (!result.token) {
-      notification['error']({
-        message: 'Token doesn\'t exist',
-      });
-      return;
-    }
-
-    // save token to local storage
-    localStorage.setItem('token', result.token);
-    authStore.token = result.token
-
-    // redirect to dashboard
-    setTimeout(() => {
-      const router = useRouter();
-      router.push({ path: "/user" });
-    }, 3000);
-
   } catch (error) {
     console.log(error);
+    notification['error']({
+      message: error.message,
+    });
+    isLoading.value = false;
   }
-
 };
 
 const onFinishFailed = (errorInfo) => {
