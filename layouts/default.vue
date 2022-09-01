@@ -83,11 +83,11 @@
                 />
               </div>
               <div class="mt-5 h-0 flex-1 overflow-y-auto">
-                <nav class="space-y-1 px-2">
-                  <a
-                    v-for="item in navigation"
-                    :key="item.name"
-                    :href="item.href"
+                <template v-for="(item, i) in navigation">
+                  <nuxt-link
+                    :key="i"
+                    v-if="!item.needAuth || (item.needAuth && isAuth)"
+                    :to="item.href"
                     :class="[
                       item.current
                         ? 'bg-gray-900 text-white'
@@ -106,8 +106,8 @@
                       aria-hidden="true"
                     />
                     {{ item.name }}
-                  </a>
-                </nav>
+                  </nuxt-link>
+                </template>
               </div>
             </DialogPanel>
           </TransitionChild>
@@ -131,29 +131,31 @@
         </div>
         <div class="flex flex-1 flex-col overflow-y-auto">
           <nav class="flex-1 space-y-1 px-2 py-4">
-            <a
-              v-for="item in navigation"
-              :key="item.name"
-              :href="item.href"
-              :class="[
-                item.current
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
-              ]"
-            >
-              <component
-                :is="item.icon"
+            <template v-for="(item, i) in navigation">
+              <nuxt-link
+                :key="i"
+                v-if="!item.needAuth || (item.needAuth && isAuth)"
+                :to="item.href"
                 :class="[
                   item.current
-                    ? 'text-gray-300'
-                    : 'text-gray-400 group-hover:text-gray-300',
-                  'mr-3 flex-shrink-0 h-6 w-6',
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                  'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
                 ]"
-                aria-hidden="true"
-              />
-              {{ item.name }}
-            </a>
+              >
+                <component
+                  :is="item.icon"
+                  :class="[
+                    item.current
+                      ? 'text-gray-300'
+                      : 'text-gray-400 group-hover:text-gray-300',
+                    'mr-3 flex-shrink-0 h-6 w-6',
+                  ]"
+                  aria-hidden="true"
+                />
+                {{ item.name }}
+              </nuxt-link>
+            </template>
           </nav>
         </div>
       </div>
@@ -248,7 +250,7 @@
       <main class="flex-1">
         <div class="py-6">
           <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-            <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <h1 class="text-2xl font-semibold text-gray-900">{{ pageName }}</h1>
           </div>
           <div class="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
             <!-- Replace with your content -->
@@ -291,15 +293,61 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/20/solid/index.js';
 
 const authStore = useAuthStore();
 
+const route = useRoute();
+
+const pageName = computed(() => {
+  const name = route.name;
+  if (name === 'home') {
+    return 'Dashboard';
+  }
+  return name;
+});
+
 const isAuth = computed(() => authStore.isAuth);
 
 const navigation = [
-  { name: 'Dashboard', href: '#', icon: HomeIcon, current: true },
-  { name: 'Team', href: '#', icon: UsersIcon, current: false },
-  { name: 'Projects', href: '#', icon: FolderIcon, current: false },
-  { name: 'Calendar', href: '#', icon: CalendarIcon, current: false },
-  { name: 'Documents', href: '#', icon: InboxIcon, current: false },
-  { name: 'Reports', href: '#', icon: ChartBarIcon, current: false },
+  {
+    name: 'Dashboard',
+    href: '/',
+    icon: HomeIcon,
+    current: true,
+    needAuth: false,
+  },
+  {
+    name: 'Team',
+    href: '/team',
+    icon: UsersIcon,
+    current: false,
+    needAuth: true,
+  },
+  {
+    name: 'Projects',
+    href: '/projects',
+    icon: FolderIcon,
+    current: false,
+    needAuth: true,
+  },
+  {
+    name: 'Calendar',
+    href: '/calendar',
+    icon: CalendarIcon,
+    current: false,
+    needAuth: true,
+  },
+  {
+    name: 'Documents',
+    href: '/documents',
+    icon: InboxIcon,
+    current: false,
+    needAuth: true,
+  },
+  {
+    name: 'Reports',
+    href: '/reports',
+    icon: ChartBarIcon,
+    current: false,
+    needAuth: true,
+  },
 ];
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
