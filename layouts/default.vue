@@ -224,6 +224,7 @@
                 >
                   <template v-if="isAuth">
                     <MenuItem
+                      :disabled="false"
                       v-for="item in userNavigation"
                       :key="item.name"
                       v-slot="{ active }"
@@ -233,20 +234,32 @@
                         :href="item.href"
                         :class="[
                           active ? 'bg-gray-100' : '',
-                          'block px-4 py-2 text-sm text-gray-700',
+                          'menu-item block px-4 py-2 text-sm',
                         ]"
                         >{{ item.name }}</a
                       >
                     </MenuItem>
                   </template>
 
-                  <MenuItem v-if="!isAuth">
-                    <a @click="goToLogin()" class="block px-4 py-2 text-sm">
+                  <MenuItem v-if="!isAuth" v-slot="{ active }">
+                    <a
+                      @click="goToLogin()"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'menu-item block px-4 py-2 text-sm',
+                      ]"
+                    >
                       Login
                     </a>
                   </MenuItem>
-                  <MenuItem v-else>
-                    <a @click="logout()" class="block px-4 py-2 text-sm">
+                  <MenuItem v-else v-slot="{ active }">
+                    <a
+                      @click="logout()"
+                      :class="[
+                        active ? 'bg-gray-100' : '',
+                        'menu-item block px-4 py-2 text-sm',
+                      ]"
+                    >
                       Logout
                     </a>
                   </MenuItem>
@@ -377,10 +390,17 @@ const goToLogin = () => {
   router.push({ name: 'login' });
 };
 
-const logout = async () => {
-  await useAuthStore.logout();
-  router.push({ name: 'login' });
+const logout = () => {
+  authStore.logout();
+  router.push('/');
 };
 
 const sidebarOpen = ref(false);
 </script>
+
+<style scoped>
+.menu-item {
+  color: #1890ff !important;
+  cursor: pointer;
+}
+</style>
