@@ -308,7 +308,7 @@ const isAuth = computed(() => authStore.isAuth);
 const navigation = [
   {
     name: 'Dashboard',
-    href: '/',
+    href: '/dashboard',
     icon: HomeIcon,
     current: true,
     needAuth: false,

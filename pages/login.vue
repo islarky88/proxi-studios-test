@@ -101,10 +101,10 @@ const onFinish = async () => {
     authStore.token = result.token;
 
     // redirect to dashboard timeout
-    setTimeout(() => {
-      const router = useRouter();
-      router.push({ path: '/user' });
-    }, 3000);
+    // setTimeout(() => {
+    //   const router = useRouter();
+    //   router.push({ path: '/dashboard' });
+    // }, 3000);
 
     // register or login successful
     notification['success']({
