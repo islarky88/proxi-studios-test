@@ -11,14 +11,20 @@ RUN apk add git
 
 # copy the app, note .dockerignore
 COPY . /usr/src/nuxt-app/
+COPY package*.json ./
 RUN npm install
 RUN npm run build
-RUN npx prisma generate
 
-EXPOSE 3000
+CMD ["mysqld"]
+EXPOSE 3307
+
+COPY prisma ./prisma/
+# RUN npx prisma migrate deploy
+RUN npx prisma generate
 
 ENV NUXT_HOST=0.0.0.0
 ENV NUXT_PORT=3000
+EXPOSE 3000
 
 CMD [ "npm", "run", "dev" ]
 
