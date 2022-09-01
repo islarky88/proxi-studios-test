@@ -1,6 +1,8 @@
 <template>
   <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
 
+    token: {{ token }}
+
     <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 8 }" autocomplete="off"
       @finish="onFinish" @finishFailed="onFinishFailed">
       <a-form-item label="Username" name="username"
@@ -43,6 +45,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const isSignup = computed(() => route.query?.action === 'signup')
+const token = computed(() => authStore.token)
 
 interface FormState {
   username: string;
@@ -89,6 +92,16 @@ const onFinish = async () => {
       });
       return;
     }
+
+    // save token to local storage
+    localStorage.setItem('token', result.token);
+    authStore.token = result.token
+
+    // redirect to dashboard
+    setTimeout(() => {
+      const router = useRouter();
+      router.push({ path: "/user" });
+    }, 3000);
 
   } catch (error) {
     console.log(error);
