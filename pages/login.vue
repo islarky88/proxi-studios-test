@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-
 interface FormState {
   username: string;
   password: string;
