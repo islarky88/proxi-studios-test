@@ -1,3 +1,4 @@
+import { generateToken } from './../../utils/token';
 import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 
@@ -5,7 +6,6 @@ const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    const secret = useRuntimeConfig().env?.public?.secret;
     const { username, password } = await useBody(event);
 
     if (!username || !password)
@@ -22,32 +22,22 @@ export default defineEventHandler(async (event) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // let token;
-
-    const payload = {
-      username,
-      password: hashedPassword,
-      salt,
-    };
-
-    const result = await prisma.user.create({
-      data: payload,
+    const newUser = await prisma.user.create({
+      data: {
+        username,
+        password: hashedPassword,
+        salt,
+      },
     });
-    console.log('result :>> ', result);
 
-    // try {
-    //    token = jwt.sign(
-    //      { userId: newUser.id, email: newUser.email },
-    //      'secretkeyappearshere',
-    //      { expiresIn: '1h' },
-    //    );
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    const token = generateToken({
+      userId: newUser.id,
+      username: newUser.username,
+    });
 
     return {
-      message: 'login success',
-      result,
+      message: 'signup success',
+      token,
     };
   } catch (error) {
     return {

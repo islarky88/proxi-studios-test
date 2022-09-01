@@ -1,18 +1,12 @@
 <template>
   <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
 
-    <div class="flex justify-center mb-5">
-      username: {{ formState.username }}<br />
-      password: {{ formState.password }}
-    </div>
-
     <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 8 }" autocomplete="off"
       @finish="onFinish" @finishFailed="onFinishFailed">
       <a-form-item label="Username" name="username"
         :rules="[{ required: true, message: 'Please input your username!' }]">
         <a-input v-model:value="formState.username" />
       </a-form-item>
-
 
       <a-form-item label="Password" name="password"
         :rules="[{ required: true, message: 'Please input your password!' }]">
@@ -37,16 +31,16 @@
         Are you new? <nuxt-link to="/login?action=signup" class="ml-3">Signup here</nuxt-link>
       </div>
 
-
-
     </a-form>
-
   </div>
 </template>
 
 <script setup lang="ts">
-const route = useRoute()
+import { notification } from 'ant-design-vue';
+import { useAuthStore } from '@/store/auth'
 
+const route = useRoute()
+const authStore = useAuthStore()
 
 const isSignup = computed(() => route.query?.action === 'signup')
 
@@ -66,12 +60,36 @@ const onFinish = async () => {
     const payload = {
       username: formState.username,
       password: formState.password,
+    };
+
+    const endpoint = isSignup.value ? '/api/auth/signup' : '/api/auth/login';
+    const result = await $fetch(endpoint, { method: 'post', body: payload });
+    console.log('result :>> ', result);
+
+    // check for errors and stop when any is found
+    if (result.error) {
+      notification['error']({
+        message: 'Password is incorrect',
+        description:
+          `Please check your password and try again. Server Message: ${result.error}`,
+      });
+      return;
     }
 
-    const endpoint = isSignup.value ? '/api/auth/signup' : '/api/auth/login'
+    // register or login successful
+    notification['success']({
+      message: 'Successfully logged in',
+      description:
+        'You will be redirected to the dashboard in 3 seconds.',
+    });
 
-    const result = await $fetch(endpoint, { method: 'post', body: payload })
-    console.log('result :>> ', result);
+    if (!result.token) {
+      notification['error']({
+        message: 'Token doesn\'t exist',
+      });
+      return;
+    }
+
   } catch (error) {
     console.log(error);
   }
