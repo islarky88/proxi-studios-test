@@ -75,7 +75,10 @@
                   </button>
                 </div>
               </TransitionChild>
-              <div class="flex flex-shrink-0 items-center px-4">
+              <div
+                class="flex flex-shrink-0 items-center px-4 cursor-pointer"
+                @click="router.push('/')"
+              >
                 <img
                   class="h-8 w-auto"
                   src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=500"
@@ -89,7 +92,7 @@
                     v-if="!item.needAuth || (item.needAuth && isAuth)"
                     :to="item.href"
                     :class="[
-                      item.current
+                      routeName === item.name.toLowerCase()
                         ? 'bg-gray-900 text-white'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                       'group flex items-center px-2 py-2 text-base font-medium rounded-md',
@@ -98,7 +101,7 @@
                     <component
                       :is="item.icon"
                       :class="[
-                        item.current
+                        routeName === item.name.toLowerCase()
                           ? 'text-gray-300'
                           : 'text-gray-400 group-hover:text-gray-300',
                         'mr-4 flex-shrink-0 h-6 w-6',
@@ -122,7 +125,10 @@
     <div class="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col">
       <!-- Sidebar component, swap this element with another sidebar if you like -->
       <div class="flex min-h-0 flex-1 flex-col bg-gray-800">
-        <div class="flex h-16 flex-shrink-0 items-center bg-gray-900 px-4">
+        <div
+          class="flex h-16 flex-shrink-0 items-center bg-gray-900 px-4 cursor-pointer"
+          @click="router.push('/')"
+        >
           <img
             class="h-8 w-auto"
             src="https://tailwindui.com/img/logos/workflow-mark.svg?color=indigo&shade=500"
@@ -137,7 +143,7 @@
                 v-if="!item.needAuth || (item.needAuth && isAuth)"
                 :to="item.href"
                 :class="[
-                  item.current
+                  routeName === item.name.toLowerCase()
                     ? 'bg-gray-900 text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                   'group flex items-center px-2 py-2 text-sm font-medium rounded-md',
@@ -146,7 +152,7 @@
                 <component
                   :is="item.icon"
                   :class="[
-                    item.current
+                    routeName === item.name.toLowerCase()
                       ? 'text-gray-300'
                       : 'text-gray-400 group-hover:text-gray-300',
                     'mr-3 flex-shrink-0 h-6 w-6',
@@ -156,6 +162,28 @@
                 {{ item.name }}
               </nuxt-link>
             </template>
+            <nuxt-link
+              v-if="!isAuth"
+              to="/login"
+              :class="[
+                routeName === 'login'
+                  ? 'bg-gray-900 text-white'
+                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                'group flex items-center px-2 py-2 text-base font-medium rounded-md',
+              ]"
+            >
+              <component
+                :is="KeyIcon"
+                :class="[
+                  routeName === 'login'
+                    ? 'text-gray-300'
+                    : 'text-gray-400 group-hover:text-gray-300',
+                  'mr-4 flex-shrink-0 h-6 w-6',
+                ]"
+                aria-hidden="true"
+              />
+              Login
+            </nuxt-link>
           </nav>
         </div>
       </div>
@@ -229,15 +257,16 @@
                       :key="item.name"
                       v-slot="{ active }"
                     >
-                      <a
+                      <nuxt-link
                         :disabled="false"
-                        :href="item.href"
+                        :to="item.href"
                         :class="[
                           active ? 'bg-gray-100' : '',
                           'menu-item block px-4 py-2 text-sm',
                         ]"
-                        >{{ item.name }}</a
                       >
+                        {{ item.name }}
+                      </nuxt-link>
                     </MenuItem>
                   </template>
 
@@ -321,6 +350,8 @@ const authStore = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
+const routeName = computed(() => route.name);
+
 const pageName = computed(() => {
   const name = route.name;
   if (name === 'home') {
@@ -343,7 +374,7 @@ const navigation = [
     href: '/dashboard',
     icon: HomeIcon,
     current: true,
-    needAuth: false,
+    needAuth: true,
   },
   {
     name: 'Team',
