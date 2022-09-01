@@ -1,47 +1,55 @@
 <template>
-  <form class="text-gray-600 body-font">
+  <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
 
-    <div class="chat-notification">
-      <div class="chat-notification-logo-wrapper">
-        <img class="chat-notification-logo" src="/img/logo.svg" alt="ChitChat Logo">
-      </div>
-      <div class="chat-notification-content">
-        <h4 class="chat-notification-title">ChitChat</h4>
-        <p class="chat-notification-message">You have a new message!</p>
-      </div>
+    <div class="flex justify-center mb-5">
+      username: {{ formState.username }}<br />
+      password: {{ formState.password }}
     </div>
 
+    <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 8 }" autocomplete="off"
+      @finish="onFinish" @finishFailed="onFinishFailed">
+      <a-form-item label="Username" name="username"
+        :rules="[{ required: true, message: 'Please input your username!' }]">
+        <a-input v-model:value="formState.username" />
+      </a-form-item>
 
-    <div class="container px-5 py-24">
-      <div class="lg:w-3/5 md:w-1/2">
-        <h1 class="text-gray-900">
-          Subscribe to my newsletter
-        </h1>
-        <p class="leading-relaxed mt-4">
-          I send out a weekly newsletter with tips and tricks for web
-          development.
-        </p>
-      </div>
-      <div class=" lg:w-2/6 md:w-1/2 bg-gray-100">
-        <h2 class="text-gray-900 text-lg font-medium title-font mb-5">
-          Subscribe
-        </h2>
 
-        <div class="relative mb-4">
-          <label for="email" class="leading-7 text-sm text-gray-600">Email</label>
-          <input type="email" id="email" name="email" class="w-full bg-white rounded" />
-        </div>
-        <button class="text-white bg-indigo-500">
-          Subscribe
-        </button>
-      </div>
-    </div>
-  </form>
+      <a-form-item label="Password" name="password"
+        :rules="[{ required: true, message: 'Please input your password!' }]">
+        <a-input-password v-model:value="formState.password" />
+      </a-form-item>
+
+      <a-form-item name="remember" :wrapper-col="{ offset: 8, span: 16 }">
+        <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
+      </a-form-item>
+
+      <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
+        <a-button class="bg-slate-800 text-black" type="primary" html-type="submit">Submit</a-button>
+      </a-form-item>
+
+
+    </a-form>
+
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
+interface FormState {
+  username: string;
+  password: string;
+  remember: boolean;
+}
+const formState = reactive<FormState>({
+  username: '',
+  password: '',
+  remember: true,
+});
+const onFinish = (values) => {
+  console.log('Success:', values);
+};
+
+const onFinishFailed = (errorInfo) => {
+  console.log('Failed:', errorInfo);
+};
 </script>
-
-<style lang="scss" scoped>
-</style>
