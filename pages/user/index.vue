@@ -8,8 +8,8 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'auth',
+  middleware: ['is-auth'],
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
