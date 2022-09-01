@@ -24,7 +24,8 @@
       </a-form-item>
 
       <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button class="bg-slate-800 text-black" type="primary" html-type="submit">Submit</a-button>
+        <a-button class="bg-slate-800 text-black" type="primary" html-type="submit">{{ isSignup ? 'Signup' : 'Login' }}
+        </a-button>
       </a-form-item>
 
 
@@ -34,6 +35,11 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
+
+
+const isSignup = computed(() => route.query?.action === 'signup')
+
 interface FormState {
   username: string;
   password: string;
@@ -52,7 +58,9 @@ const onFinish = async () => {
       password: formState.password,
     }
 
-    const result = await $fetch('/api/auth/login', { method: 'post', body: payload })
+    const endpoint = isSignup.value ? '/api/auth/signup' : '/api/auth/login'
+
+    const result = await $fetch(endpoint, { method: 'post', body: payload })
     console.log('result :>> ', result);
   } catch (error) {
     console.log(error);
