@@ -45,8 +45,20 @@ const formState = reactive<FormState>({
   password: '',
   remember: true,
 });
-const onFinish = (values) => {
-  console.log('Success:', values);
+
+const onFinish = async () => {
+  try {
+    const payload = {
+      username: formState.username,
+      password: formState.password,
+    }
+
+    const result = await $fetch('/api/auth/login', { method: 'post', body: payload })
+    console.log('result :>> ', result);
+  } catch (error) {
+    console.log(error);
+  }
+
 };
 
 const onFinishFailed = (errorInfo) => {
