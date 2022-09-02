@@ -1,20 +1,26 @@
-# Nuxt 3 Minimal Starter
+# Docker Deployment
 
-Look at the [nuxt 3 documentation](https://v3.nuxtjs.org) to learn more.
+Make sure that Docker is installed and running.
 
-## Setup
+```bash
+# npm
+docker-compose build
+docker-compose up
+```
+
+It should be running after the above command. MySQL installed and can then be accessed via http://localhost:3000
+
+# Local Development Setup
 
 Make sure to install the dependencies:
 
 ```bash
-# yarn
-yarn install
-
 # npm
 npm install
 
-# pnpm
-pnpm install --shamefully-hoist
+# run prisma scripts
+npx prisma migrate deploy
+npx prisma generate
 ```
 
 ## Development Server
