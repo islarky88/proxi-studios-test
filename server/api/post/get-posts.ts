@@ -16,7 +16,31 @@ export default defineEventHandler(async (event) => {
 
     if (!decoded.userId || !decoded.username) throw new Error('Not Logged In');
 
-    const posts = await prisma.post.findMany();
+    let posts = await prisma.post.findMany();
+
+    // create test data if no posts found. should be REMOVED after testing
+    if (posts.length === 0) {
+      const newPosts = Array(26)
+        .fill(0)
+        .map((_, index) => {
+          return {
+            title: `Post ${index}`,
+            content: `Content ${index}`,
+            published: Math.random() > 0.5,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+        });
+
+      await prisma.post.createMany({
+        data: newPosts,
+      });
+
+      return {
+        message: 'ok',
+        result: newPosts,
+      };
+    }
 
     return {
       message: 'ok',
