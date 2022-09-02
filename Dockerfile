@@ -15,9 +15,6 @@ COPY package*.json ./
 RUN npm install
 RUN npm run build
 
-CMD ["mysqld"]
-EXPOSE 3307
-
 COPY prisma ./prisma/
 # RUN npx prisma migrate deploy
 RUN npx prisma generate

@@ -6,17 +6,6 @@
   </div>
 </template>
 
-<script setup>
-// import useAuthStore
-import { useAuthStore } from '@/store/auth';
-
-const authStore = useAuthStore();
-
-console.log(authStore.user);
-console.log(authStore.isAuth);
-console.log(authStore.test);
-
-console.log('result :>> ', authStore.user);
-</script>
+<script setup></script>
 
 <style scoped></style>

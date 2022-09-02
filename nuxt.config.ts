@@ -13,4 +13,9 @@ export default defineNuxtConfig({
   publicRuntimeConfig: {
     secret: process.env.SECRET,
   },
+  vite: {
+    server: {
+      hmr: false,
+    },
+  },
 });
